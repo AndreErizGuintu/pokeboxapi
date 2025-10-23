@@ -36,15 +36,24 @@ export const pokemon = createTable("pokemon", (d) => ({
   stats: d.jsonb("stats").notNull(), // Example: { hp: 78, atk: 84, def: 78, spd: 100 }
   description: d.varchar("description", { length: 500 }),
   generation: d.integer("generation").notNull(),
+  isMega: d.boolean("is_mega").default(false).notNull(),
 
   // foreign keys
-  recommendedMoveId: d.integer("recommended_move_id"),
-  signatureMoveId: d.integer("signature_move_id"),
-  evolutionChainId: d.integer("evolution_chain_id"), 
+  evolutionChainId: d.integer("evolution_chain_id").references(() => evolutionChains.id), 
 
   // media
   image2D: d.varchar("image_2d", { length: 255 }),
+  shinyImage: d.varchar("shiny_image", { length: 255 }).default('N/A').notNull(),
   image3D: d.varchar("image_3d", { length: 255 }),
+
+}));
+
+// Join table for pokemon-move relationships with proper foreign keys
+export const pokemonMoves = createTable("pokemon_moves", (d) => ({
+  id: d.serial("id").primaryKey(),
+  pokemonId: d.integer("pokemon_id").notNull().references(() => pokemon.id),
+  moveId: d.integer("move_id").notNull().references(() => moves.id),
+  role: d.varchar("role", { length: 32 }).notNull(), // 'recommended' | 'signature' | 'learned'
 }));
 
 export const evolutionChains = createTable("evolution_chains", (d) => ({
